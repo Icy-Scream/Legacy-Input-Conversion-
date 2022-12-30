@@ -21,6 +21,12 @@ namespace Game.Scripts.Player
         private CinemachineVirtualCamera _followCam;
         [SerializeField]
         private GameObject _model;
+        private InputActionMaps _input;
+
+        private void Awake()
+        {
+            _input = new InputActionMaps();
+        }
 
 
         private void OnEnable()
@@ -33,6 +39,7 @@ namespace Game.Scripts.Player
             Forklift.onDriveModeEntered += HidePlayer;
             Drone.OnEnterFlightMode += ReleasePlayerControl;
             Drone.onExitFlightmode += ReturnPlayerControl;
+            _input.Player.Enable();
         } 
 
         private void Start()
@@ -51,22 +58,22 @@ namespace Game.Scripts.Player
         private void Update()
         {
             if (_canMove == true)
-                CalcutateMovement();
+                NewInputSystem();
+                    //CalcutateMovement();
 
         }
-
-        private void CalcutateMovement()
+        private void NewInputSystem() 
         {
+            var _movement = _input.Player.Movement.ReadValue<Vector3>();
+            
             _playerGrounded = _controller.isGrounded;
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+            
 
-            transform.Rotate(transform.up, h);
-
-            var direction = transform.forward * v;
-            var velocity = direction * _speed;
-
-
+            transform.Rotate(transform.up, _movement.x);
+            
+            var direction = transform.forward * _movement.z;
+            var velocity = direction * 8f;
+            
             _anim.SetFloat("Speed", Mathf.Abs(velocity.magnitude));
 
 
@@ -76,8 +83,8 @@ namespace Game.Scripts.Player
             {
                 velocity.y += -20f * Time.deltaTime;
             }
-            
-            _controller.Move(velocity * Time.deltaTime);                      
+
+            _controller.Move(velocity * Time.deltaTime);
 
         }
 
