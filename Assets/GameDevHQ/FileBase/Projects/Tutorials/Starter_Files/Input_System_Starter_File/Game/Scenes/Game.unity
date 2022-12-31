@@ -3268,7 +3268,7 @@ MonoBehaviour:
   _displayMessage: Break the Crate
   _zoneItems: []
   _inventoryIcon: {fileID: 21300000, guid: 88841726d7ebbfc46bf799ee1bfb7d3f, type: 3}
-  _zoneKeyInput: 101
+  _zoneKeyInput: 102
   _keyState: 0
   _marker: {fileID: 1808342870}
 --- !u!1001 &198573547
@@ -13207,8 +13207,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 7.2368274e+25, y: 1.9362433e+31, z: 7.7747814e+31,
-    w: 2.6914607e+20}
+  m_BoundingSphereOverride: {x: 3.030571e-39, y: 9.1835e-41, z: 1.8e-43, w: 401.12158}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -18265,7 +18264,7 @@ MonoBehaviour:
   _displayMessage: Reset
   _zoneItems: []
   _inventoryIcon: {fileID: 0}
-  _zoneKeyInput: 101
+  _zoneKeyInput: 113
   _keyState: 0
   _marker: {fileID: 1578479318}
 --- !u!1 &967188505
@@ -18394,7 +18393,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 972744894}
-  m_LocalRotation: {x: 0.22150688, y: 0.046705745, z: -0.010622009, w: 0.9739818}
+  m_LocalRotation: {x: 0.22150683, y: 0.046706628, z: -0.010622209, w: 0.97398174}
   m_LocalPosition: {x: -0.48177326, y: 4.5286655, z: -4.833789}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

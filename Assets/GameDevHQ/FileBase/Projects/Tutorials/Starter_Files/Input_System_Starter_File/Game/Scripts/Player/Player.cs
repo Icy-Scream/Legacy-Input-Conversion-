@@ -58,11 +58,10 @@ namespace Game.Scripts.Player
         private void Update()
         {
             if (_canMove == true)
-                NewInputSystem();
-                    //CalcutateMovement();
+                CalculateMovement();
 
         }
-        private void NewInputSystem() 
+        private void CalculateMovement() 
         {
             var _movement = _input.Player.Movement.ReadValue<Vector3>();
             
@@ -72,7 +71,7 @@ namespace Game.Scripts.Player
             transform.Rotate(transform.up, _movement.x);
             
             var direction = transform.forward * _movement.z;
-            var velocity = direction * 8f;
+            var velocity = direction * _speed;
             
             _anim.SetFloat("Speed", Mathf.Abs(velocity.magnitude));
 
