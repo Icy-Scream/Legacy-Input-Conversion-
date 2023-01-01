@@ -213,13 +213,6 @@ namespace Game.Scripts.LiveObjects
             _input.asset.FindAction("Interact").ApplyBindingOverride($"<Keyboard>/{_zoneKeyInput.ToString().ToLower()}");
         }
 
-        private void AddInteract() 
-        {
-            var HoldAction = new InputAction("HoldInteract");
-            HoldAction.AddBinding($"<Keybard>/{_zoneKeyInput.ToString().ToLower()}")
-                // Tap fires, slow tap charges. Both act on release.
-                .WithInteractions("hold");
-        }
 
         private void CollectItems()
         {

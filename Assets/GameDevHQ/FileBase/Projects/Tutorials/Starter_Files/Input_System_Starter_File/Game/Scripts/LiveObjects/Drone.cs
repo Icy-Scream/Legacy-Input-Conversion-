@@ -13,7 +13,7 @@ namespace Game.Scripts.LiveObjects
         {
             NoTilt, Forward, Back, Left, Right
         }
-
+        InputActionMaps _input;
         [SerializeField]
         private Rigidbody _rigidbody;
         [SerializeField]
@@ -30,11 +30,27 @@ namespace Game.Scripts.LiveObjects
         public static event Action OnEnterFlightMode;
         public static event Action onExitFlightmode;
 
-        private void OnEnable()
+        private void Awake()
         {
-            InteractableZone.onZoneInteractionComplete += EnterFlightMode;
+            _input = new InputActionMaps();
         }
 
+        private void OnEnable()
+        { 
+            InteractableZone.onZoneInteractionComplete += EnterFlightMode;
+            InteractableZone.onZoneInteractionComplete += DisablePlayerMap;
+        }
+
+
+
+        private void DisablePlayerMap(InteractableZone zone) 
+        {
+            if (zone.GetZoneID() == 4) // drone Scene
+            {
+                _input.Player.Disable();
+                _input.Drone.Enable();
+            }
+        }
         private void EnterFlightMode(InteractableZone zone)
         {
             if (_inFlightMode != true && zone.GetZoneID() == 4) // drone Scene
@@ -61,13 +77,6 @@ namespace Game.Scripts.LiveObjects
             {
                 CalculateTilt();
                 CalculateMovementUpdate();
-
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    _inFlightMode = false;
-                    onExitFlightmode?.Invoke();
-                    ExitFlightMode();
-                }
             }
         }
 
@@ -80,13 +89,14 @@ namespace Game.Scripts.LiveObjects
 
         private void CalculateMovementUpdate()
         {
-            if (Input.GetKey(KeyCode.LeftArrow))
+           var rotate = _input.Drone.Rotate.ReadValue<float>();
+            if (rotate == -1)
             {
                 var tempRot = transform.localRotation.eulerAngles;
                 tempRot.y -= _speed / 3;
                 transform.localRotation = Quaternion.Euler(tempRot);
             }
-            if (Input.GetKey(KeyCode.RightArrow))
+            else if (rotate == 1)
             {
                 var tempRot = transform.localRotation.eulerAngles;
                 tempRot.y += _speed / 3;
@@ -96,34 +106,26 @@ namespace Game.Scripts.LiveObjects
 
         private void CalculateMovementFixedUpdate()
         {
-            
-            if (Input.GetKey(KeyCode.Space))
-            {
-                _rigidbody.AddForce(transform.up * _speed, ForceMode.Acceleration);
-            }
-            if (Input.GetKey(KeyCode.V))
-            {
-                _rigidbody.AddForce(-transform.up * _speed, ForceMode.Acceleration);
-            }
+            var  movement = _input.Drone.Flight.ReadValue<Vector3>();
+            _rigidbody.AddForce( new Vector3(0,movement.y,0) * _speed, ForceMode.Acceleration);
         }
+
 
         private void CalculateTilt()
         {
-            if (Input.GetKey(KeyCode.A)) 
-                transform.rotation = Quaternion.Euler(00, transform.localRotation.eulerAngles.y, 30);
-            else if (Input.GetKey(KeyCode.D))
-                transform.rotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, -30);
-            else if (Input.GetKey(KeyCode.W))
-                transform.rotation = Quaternion.Euler(30, transform.localRotation.eulerAngles.y, 0);
-            else if (Input.GetKey(KeyCode.S))
-                transform.rotation = Quaternion.Euler(-30, transform.localRotation.eulerAngles.y, 0);
-            else 
-                transform.rotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, 0);
+            var movement = _input.Drone.Flight.ReadValue<Vector3>();
+            Debug.Log(_input.Drone.Flight.inProgress);
+            if(_input.Drone.Flight.inProgress)
+            transform.rotation = Quaternion.Euler(movement.z * 30, transform.localRotation.eulerAngles.y, movement.x * -30);
+            else{ transform.rotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, 0); }
+            
+            
         }
 
         private void OnDisable()
         {
             InteractableZone.onZoneInteractionComplete -= EnterFlightMode;
+            InteractableZone.onZoneInteractionComplete -= DisablePlayerMap;
         }
     }
 }
