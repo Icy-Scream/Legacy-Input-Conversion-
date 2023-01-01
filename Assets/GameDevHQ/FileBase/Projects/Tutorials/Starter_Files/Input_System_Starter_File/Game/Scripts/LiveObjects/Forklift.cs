@@ -19,19 +19,32 @@ namespace Game.Scripts.LiveObjects
         private bool _inDriveMode = false;
         [SerializeField]
         private InteractableZone _interactableZone;
+        private InputActionMaps _input;
 
         public static event Action onDriveModeEntered;
         public static event Action onDriveModeExited;
 
+        private void Awake()
+        {
+            _input = new InputActionMaps();
+        }
         private void OnEnable()
         {
             InteractableZone.onZoneInteractionComplete += EnterDriveMode;
+            _input.Forklift.Exit.performed += Exit_performed;
+        }
+
+        private void Exit_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        {
+            ExitDriveMode();
         }
 
         private void EnterDriveMode(InteractableZone zone)
         {
             if (_inDriveMode !=true && zone.GetZoneID() == 5) //Enter ForkLift
             {
+                _input.Player.Disable();
+                _input.Forklift.Enable();
                 _inDriveMode = true;
                 _forkliftCam.Priority = 11;
                 onDriveModeEntered?.Invoke();
@@ -55,52 +68,56 @@ namespace Game.Scripts.LiveObjects
             {
                 LiftControls();
                 CalcutateMovement();
-                if (Input.GetKeyDown(KeyCode.Escape))
-                    ExitDriveMode();
             }
 
         }
 
         private void CalcutateMovement()
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
-            var direction = new Vector3(0, 0, v);
-            var velocity = direction * _speed;
+           var movement = _input.Forklift.Drive.ReadValue<Vector2>();
+           var direction = new Vector3(0, 0, movement.y);
+           var velocity = direction * _speed;
 
             transform.Translate(velocity * Time.deltaTime);
 
-            if (Mathf.Abs(v) > 0)
+            if (Mathf.Abs(movement.y) > 0)
             {
                 var tempRot = transform.rotation.eulerAngles;
-                tempRot.y += h * _speed / 2;
+                tempRot.y += (movement.x * - 1) * _speed / 2;
                 transform.rotation = Quaternion.Euler(tempRot);
             }
         }
 
         private void LiftControls()
         {
-            if (Input.GetKey(KeyCode.R))
-                LiftUpRoutine();
-            else if (Input.GetKey(KeyCode.T))
-                LiftDownRoutine();
+            var LiftUpOrDown = _input.Forklift.Lift.ReadValue<float>();
+                LiftUpRoutine(LiftUpOrDown);
         }
 
-        private void LiftUpRoutine()
+        private void LiftUpRoutine(float LiftUpOrDown)
         {
-            if (_lift.transform.localPosition.y < _liftUpperLimit.y)
+            if (LiftUpOrDown == 1)
             {
                 Vector3 tempPos = _lift.transform.localPosition;
                 tempPos.y += Time.deltaTime * _liftSpeed;
                 _lift.transform.localPosition = new Vector3(tempPos.x, tempPos.y, tempPos.z);
+                if (_lift.transform.localPosition.y >= _liftUpperLimit.y)
+                    _lift.transform.localPosition = _liftUpperLimit;
             }
-            else if (_lift.transform.localPosition.y >= _liftUpperLimit.y)
-                _lift.transform.localPosition = _liftUpperLimit;
+                           
+            if (LiftUpOrDown == -1)
+            {
+                Vector3 tempPos = _lift.transform.localPosition;
+                tempPos.y -= Time.deltaTime * _liftSpeed;
+                _lift.transform.localPosition = new Vector3(tempPos.x, tempPos.y, tempPos.z);
+                if(_lift.transform.localPosition.y <= _liftLowerLimit.y)
+                    _lift.transform.localPosition = _liftLowerLimit;
+            }                
         }
 
-        private void LiftDownRoutine()
+        private void LiftDownRoutine(float LiftUpOrDown)
         {
-            if (_lift.transform.localPosition.y > _liftLowerLimit.y)
+            if (LiftUpOrDown == -1)
             {
                 Vector3 tempPos = _lift.transform.localPosition;
                 tempPos.y -= Time.deltaTime * _liftSpeed;

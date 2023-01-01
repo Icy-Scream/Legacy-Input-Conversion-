@@ -270,6 +270,140 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""Forklift"",
+            ""id"": ""d6d3ba98-2aaf-4ca8-b97c-040b586c44a2"",
+            ""actions"": [
+                {
+                    ""name"": ""Drive"",
+                    ""type"": ""Value"",
+                    ""id"": ""a75b8483-2428-4d6a-a932-dfa95551c9df"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Lift"",
+                    ""type"": ""Value"",
+                    ""id"": ""33a2a791-d4a1-4806-87c9-bfdb7461b73c"",
+                    ""expectedControlType"": ""Analog"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""41063c17-f5f6-4dcc-9ccf-83736029dee8"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""c0d16948-f1c7-43cd-8427-63cd3f81f610"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drive"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""c034259f-7d2d-49ed-907c-71ffb5a04de2"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drive"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""7dd55302-8100-4dcc-94a5-7e3a328a0c92"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drive"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""019e14ff-fa7f-4991-b1d9-f48205512338"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drive"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""2dcdcee4-6139-46f8-9496-d37f5365862d"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drive"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""5e07511b-4a24-4e37-8ae9-45cc21de6577"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Lift"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""c9d179ca-505b-4163-8a9a-913dfdb865a3"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Lift"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""41b75034-83f6-4ae4-ac46-f6ffbe2ce745"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Lift"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b152d06-10e1-48dd-bc2c-2bd4a6acd21d"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -283,6 +417,11 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         m_Drone_Flight = m_Drone.FindAction("Flight", throwIfNotFound: true);
         m_Drone_Exit = m_Drone.FindAction("Exit", throwIfNotFound: true);
         m_Drone_Rotate = m_Drone.FindAction("Rotate", throwIfNotFound: true);
+        // Forklift
+        m_Forklift = asset.FindActionMap("Forklift", throwIfNotFound: true);
+        m_Forklift_Drive = m_Forklift.FindAction("Drive", throwIfNotFound: true);
+        m_Forklift_Lift = m_Forklift.FindAction("Lift", throwIfNotFound: true);
+        m_Forklift_Exit = m_Forklift.FindAction("Exit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -428,6 +567,55 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         }
     }
     public DroneActions @Drone => new DroneActions(this);
+
+    // Forklift
+    private readonly InputActionMap m_Forklift;
+    private IForkliftActions m_ForkliftActionsCallbackInterface;
+    private readonly InputAction m_Forklift_Drive;
+    private readonly InputAction m_Forklift_Lift;
+    private readonly InputAction m_Forklift_Exit;
+    public struct ForkliftActions
+    {
+        private @InputActionMaps m_Wrapper;
+        public ForkliftActions(@InputActionMaps wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Drive => m_Wrapper.m_Forklift_Drive;
+        public InputAction @Lift => m_Wrapper.m_Forklift_Lift;
+        public InputAction @Exit => m_Wrapper.m_Forklift_Exit;
+        public InputActionMap Get() { return m_Wrapper.m_Forklift; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ForkliftActions set) { return set.Get(); }
+        public void SetCallbacks(IForkliftActions instance)
+        {
+            if (m_Wrapper.m_ForkliftActionsCallbackInterface != null)
+            {
+                @Drive.started -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnDrive;
+                @Drive.performed -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnDrive;
+                @Drive.canceled -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnDrive;
+                @Lift.started -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnLift;
+                @Lift.performed -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnLift;
+                @Lift.canceled -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnLift;
+                @Exit.started -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnExit;
+                @Exit.performed -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnExit;
+                @Exit.canceled -= m_Wrapper.m_ForkliftActionsCallbackInterface.OnExit;
+            }
+            m_Wrapper.m_ForkliftActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Drive.started += instance.OnDrive;
+                @Drive.performed += instance.OnDrive;
+                @Drive.canceled += instance.OnDrive;
+                @Lift.started += instance.OnLift;
+                @Lift.performed += instance.OnLift;
+                @Lift.canceled += instance.OnLift;
+                @Exit.started += instance.OnExit;
+                @Exit.performed += instance.OnExit;
+                @Exit.canceled += instance.OnExit;
+            }
+        }
+    }
+    public ForkliftActions @Forklift => new ForkliftActions(this);
     public interface IPlayerActions
     {
         void OnMovement(InputAction.CallbackContext context);
@@ -438,5 +626,11 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         void OnFlight(InputAction.CallbackContext context);
         void OnExit(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
+    }
+    public interface IForkliftActions
+    {
+        void OnDrive(InputAction.CallbackContext context);
+        void OnLift(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
 }
