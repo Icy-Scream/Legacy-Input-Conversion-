@@ -6,6 +6,8 @@ using Game.Scripts.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.InputSystem.Interactions;
+using Unity.Mathematics;
+using System.Net;
 
 namespace Game.Scripts.LiveObjects
 {
@@ -48,7 +50,7 @@ namespace Game.Scripts.LiveObjects
         private KeyState _keyState;
         [SerializeField]
         private GameObject _marker;
-
+        private double _startTime;
         private bool _inHoldState = false;
 
         private static int _currentZoneID = 0;
@@ -77,15 +79,32 @@ namespace Game.Scripts.LiveObjects
         {
             InteractableZone.onZoneInteractionComplete += SetMarker;
             _input.Player.Enable();
+            _input.Player.Interact.started += Interact_started;
             _input.Player.Interact.performed += Interact_performed;
             _input.Player.Interact.canceled += Interact_canceled;
         }
 
+        private void Interact_started(InputAction.CallbackContext obj)
+        {
+            _startTime = obj.startTime;
+        }
+
         private void Interact_canceled(InputAction.CallbackContext obj)
         {
-            if (_inZone == true) 
+            double timeHeld = obj.time - _startTime;
+            Debug.Log($"Time Start: {_startTime} Time Realeasd: {obj.time} Time: {math.round(timeHeld)}");
+            if (_inZone == true)
             {
-            
+                if (_zoneID == 6)
+                {
+                    for (int i = 0; i <= timeHeld; i++) 
+                    { 
+                      PerformAction();
+                    }
+                    _actionPerformed = true;
+                    UIManager.Instance.DisplayInteractableZoneMessage(false);
+                }
+             
                 if (_keyState == KeyState.PressHold)
                 {
                     _inHoldState = false;
@@ -117,9 +136,17 @@ namespace Game.Scripts.LiveObjects
                         case ZoneType.Action:
                             if (_actionPerformed == false)
                             {
-                                PerformAction();
-                                _actionPerformed = true;
-                                UIManager.Instance.DisplayInteractableZoneMessage(false);
+                                if(_zoneID == 6) 
+                                {
+                                    break;
+                                }
+                                else 
+                                { 
+                                    PerformAction();
+                                    _actionPerformed = true;
+                                    UIManager.Instance.DisplayInteractableZoneMessage(false);
+                                }
+                                
                             }
                             break;
                     }
