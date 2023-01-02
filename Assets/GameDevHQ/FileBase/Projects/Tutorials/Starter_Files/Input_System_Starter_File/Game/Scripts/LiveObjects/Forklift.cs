@@ -115,21 +115,10 @@ namespace Game.Scripts.LiveObjects
             }                
         }
 
-        private void LiftDownRoutine(float LiftUpOrDown)
-        {
-            if (LiftUpOrDown == -1)
-            {
-                Vector3 tempPos = _lift.transform.localPosition;
-                tempPos.y -= Time.deltaTime * _liftSpeed;
-                _lift.transform.localPosition = new Vector3(tempPos.x, tempPos.y, tempPos.z);
-            }
-            else if (_lift.transform.localPosition.y <= _liftUpperLimit.y)
-                _lift.transform.localPosition = _liftLowerLimit;
-        }
-
         private void OnDisable()
         {
             InteractableZone.onZoneInteractionComplete -= EnterDriveMode;
+            _input.Forklift.Disable();
         }
 
     }

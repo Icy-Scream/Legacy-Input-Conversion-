@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
+using TMPro;
 
 namespace Game.Scripts.LiveObjects
 {
     public class Laptop : MonoBehaviour
     {
+        InputActionMaps _input;
         [SerializeField]
         private Slider _progressBar;
         [SerializeField]
@@ -23,18 +25,31 @@ namespace Game.Scripts.LiveObjects
         public static event Action onHackComplete;
         public static event Action onHackEnded;
 
+        private void Awake()
+        {
+            _input = new InputActionMaps();
+        }
+
         private void OnEnable()
         {
             InteractableZone.onHoldStarted += InteractableZone_onHoldStarted;
             InteractableZone.onHoldEnded += InteractableZone_onHoldEnded;
+            _input.Camera.Enable();
+            _input.Camera.SwitchCamera.performed += SwitchCamera_performed;
+            _input.Camera.Escape.performed += Escape_performed;
         }
 
-        private void Update()
+        private void Escape_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        {
+                _hacked = false;
+                onHackEnded?.Invoke();
+                ResetCameras();
+        }
+
+        private void SwitchCamera_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
             if (_hacked == true)
             {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
                     var previous = _activeCamera;
                     _activeCamera++;
 
@@ -45,15 +60,14 @@ namespace Game.Scripts.LiveObjects
 
                     _cameras[_activeCamera].Priority = 11;
                     _cameras[previous].Priority = 9;
-                }
+                
 
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    _hacked = false;
-                    onHackEnded?.Invoke();
-                    ResetCameras();
-                }
             }
+        }
+
+        private void Update()
+        {
+          
         }
 
         void ResetCameras()
@@ -112,6 +126,7 @@ namespace Game.Scripts.LiveObjects
         {
             InteractableZone.onHoldStarted -= InteractableZone_onHoldStarted;
             InteractableZone.onHoldEnded -= InteractableZone_onHoldEnded;
+            _input.Camera.Disable();
         }
     }
 

@@ -56,7 +56,7 @@ namespace Game.Scripts.LiveObjects
             _render.enabled = true;
         }
 
-        private void Ondisable()
+        private void OnDestroy()
         {
             InteractableZone.onZoneInteractionComplete -= InteractableZone_onZoneInteractionComplete;
         }

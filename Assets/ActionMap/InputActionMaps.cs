@@ -404,6 +404,54 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Camera"",
+            ""id"": ""4c7bad6a-a225-447c-bce8-19e88f380957"",
+            ""actions"": [
+                {
+                    ""name"": ""SwitchCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""5d5020e7-718b-4509-878d-ba28c3a8cc39"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Escape"",
+                    ""type"": ""Button"",
+                    ""id"": ""a66a9d3a-c883-485e-aca0-2cd5808a6e75"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""c66e38a3-3594-4c21-81d5-ddd143dfb24f"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bb210c08-e2e2-4e48-a015-ca853b25457c"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -422,6 +470,10 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         m_Forklift_Drive = m_Forklift.FindAction("Drive", throwIfNotFound: true);
         m_Forklift_Lift = m_Forklift.FindAction("Lift", throwIfNotFound: true);
         m_Forklift_Exit = m_Forklift.FindAction("Exit", throwIfNotFound: true);
+        // Camera
+        m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
+        m_Camera_SwitchCamera = m_Camera.FindAction("SwitchCamera", throwIfNotFound: true);
+        m_Camera_Escape = m_Camera.FindAction("Escape", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -616,6 +668,47 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         }
     }
     public ForkliftActions @Forklift => new ForkliftActions(this);
+
+    // Camera
+    private readonly InputActionMap m_Camera;
+    private ICameraActions m_CameraActionsCallbackInterface;
+    private readonly InputAction m_Camera_SwitchCamera;
+    private readonly InputAction m_Camera_Escape;
+    public struct CameraActions
+    {
+        private @InputActionMaps m_Wrapper;
+        public CameraActions(@InputActionMaps wrapper) { m_Wrapper = wrapper; }
+        public InputAction @SwitchCamera => m_Wrapper.m_Camera_SwitchCamera;
+        public InputAction @Escape => m_Wrapper.m_Camera_Escape;
+        public InputActionMap Get() { return m_Wrapper.m_Camera; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(CameraActions set) { return set.Get(); }
+        public void SetCallbacks(ICameraActions instance)
+        {
+            if (m_Wrapper.m_CameraActionsCallbackInterface != null)
+            {
+                @SwitchCamera.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnSwitchCamera;
+                @SwitchCamera.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnSwitchCamera;
+                @SwitchCamera.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnSwitchCamera;
+                @Escape.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnEscape;
+                @Escape.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnEscape;
+                @Escape.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnEscape;
+            }
+            m_Wrapper.m_CameraActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @SwitchCamera.started += instance.OnSwitchCamera;
+                @SwitchCamera.performed += instance.OnSwitchCamera;
+                @SwitchCamera.canceled += instance.OnSwitchCamera;
+                @Escape.started += instance.OnEscape;
+                @Escape.performed += instance.OnEscape;
+                @Escape.canceled += instance.OnEscape;
+            }
+        }
+    }
+    public CameraActions @Camera => new CameraActions(this);
     public interface IPlayerActions
     {
         void OnMovement(InputAction.CallbackContext context);
@@ -632,5 +725,10 @@ public partial class @InputActionMaps : IInputActionCollection2, IDisposable
         void OnDrive(InputAction.CallbackContext context);
         void OnLift(InputAction.CallbackContext context);
         void OnExit(InputAction.CallbackContext context);
+    }
+    public interface ICameraActions
+    {
+        void OnSwitchCamera(InputAction.CallbackContext context);
+        void OnEscape(InputAction.CallbackContext context);
     }
 }
