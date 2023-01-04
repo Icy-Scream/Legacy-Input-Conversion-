@@ -8,6 +8,8 @@ using UnityEngine.InputSystem.Utilities;
 using UnityEngine.InputSystem.Interactions;
 using Unity.Mathematics;
 using System.Net;
+using Unity.VisualScripting;
+using UnityEngine.Rendering.Universal;
 
 namespace Game.Scripts.LiveObjects
 {
@@ -52,7 +54,7 @@ namespace Game.Scripts.LiveObjects
         private GameObject _marker;
         private double _startTime;
         private bool _inHoldState = false;
-
+        private bool controller = false;
         private static int _currentZoneID = 0;
         public static int CurrentZoneID
         { 
@@ -81,7 +83,47 @@ namespace Game.Scripts.LiveObjects
             _input.Player.Enable();
             _input.Player.Interact.started += Interact_started;
             _input.Player.Interact.performed += Interact_performed;
+            _input.Player.InteractController.performed += InteractController_performed;
+            _input.Player.InteractController.canceled += InteractController_canceled;
+            _input.Player.InteractController.started += InteractController_started;
             _input.Player.Interact.canceled += Interact_canceled;
+        }
+
+        private void InteractController_started(InputAction.CallbackContext obj)
+        {
+            _startTime = obj.startTime;
+        }
+
+        private void InteractController_canceled(InputAction.CallbackContext obj)
+        {
+            double timeHeld = obj.time - _startTime;
+            if (_inZone == true)
+            {
+                if (_zoneID == 6)
+                {
+                    for (int i = 0; i <= timeHeld; i++)
+                    {
+                        PerformAction();
+                    }
+                    _actionPerformed = true;
+                    UIManager.Instance.DisplayInteractableZoneMessage(false);
+                }
+
+                if (_keyState == KeyState.PressHold)
+                {
+                    _inHoldState = false;
+                    onHoldEnded?.Invoke(_zoneID);
+                }
+
+            }
+        }
+
+        private void InteractController_performed(InputAction.CallbackContext obj)
+        {
+            if (_inZone == true)
+            {
+                DeviceInput();
+            }
         }
 
         private void Interact_started(InputAction.CallbackContext obj)
@@ -92,7 +134,6 @@ namespace Game.Scripts.LiveObjects
         private void Interact_canceled(InputAction.CallbackContext obj)
         {
             double timeHeld = obj.time - _startTime;
-            Debug.Log($"Time Start: {_startTime} Time Realeasd: {obj.time} Time: {math.round(timeHeld)}");
             if (_inZone == true)
             {
                 if (_zoneID == 6)
@@ -116,44 +157,50 @@ namespace Game.Scripts.LiveObjects
 
         private void Interact_performed(InputAction.CallbackContext obj)
         {
-            Debug.Log("Interact");
             if (_inZone == true)
             {
-                if (_keyState != KeyState.PressHold)
+                DeviceInput();      
+            }
+        }
+           
+
+        private void DeviceInput() 
+        {
+            if (_keyState != KeyState.PressHold)
+            {
+                //press
+                switch (_zoneType)
                 {
-                    //press
-                    switch (_zoneType)
-                    {
-                        case ZoneType.Collectable:
-                            if (_itemsCollected == false)
+                    case ZoneType.Collectable:
+                        if (_itemsCollected == false)
+                        {
+                            CollectItems();
+                            _itemsCollected = true;
+                            UIManager.Instance.DisplayInteractableZoneMessage(false);
+                        }
+                        break;
+
+                    case ZoneType.Action:
+                        if (_actionPerformed == false)
+                        {
+                            if (_zoneID == 6)
                             {
-                                CollectItems();
-                                _itemsCollected = true;
+                                break;
+                            }
+                            else
+                            {
+                                PerformAction();
+                                _actionPerformed = true;
                                 UIManager.Instance.DisplayInteractableZoneMessage(false);
                             }
-                            break;
 
-                        case ZoneType.Action:
-                            if (_actionPerformed == false)
-                            {
-                                if(_zoneID == 6) 
-                                {
-                                    break;
-                                }
-                                else 
-                                { 
-                                    PerformAction();
-                                    _actionPerformed = true;
-                                    UIManager.Instance.DisplayInteractableZoneMessage(false);
-                                }
-                                
-                            }
-                            break;
-                    }
+                        }
+                        break;
                 }
-                else if (_keyState == KeyState.PressHold && !_inHoldState)
-                {
-                    if (_input.Player.Interact.IsPressed())
+            }
+            else if (_keyState == KeyState.PressHold && !_inHoldState)
+            {
+                if (_input.Player.Interact.IsPressed() || _input.Player.InteractController.IsPressed())
                     {
                         _inHoldState = true;
                         switch (_zoneType)
@@ -163,24 +210,18 @@ namespace Game.Scripts.LiveObjects
                                 break;
                         }
                     }
-                    else 
+                    else
                     {
                         if (_keyState == KeyState.PressHold)
                         {
-                                _inHoldState = false;
-                                onHoldEnded?.Invoke(_zoneID);
+                            _inHoldState = false;
+                            onHoldEnded?.Invoke(_zoneID);
                         }
                     }
                 }
-                       
-            }
-            else _input.asset.FindAction("Interact").ApplyBindingOverride($"");
         }
-                        
 
 
-                     
-                    
 
 
 
@@ -191,7 +232,7 @@ namespace Game.Scripts.LiveObjects
                 switch (_zoneType)
                 {
                     case ZoneType.Collectable:
-                        ChangeBinding();
+                       ChangeBinding();
                         if (_itemsCollected == false)
                         {
                             _inZone = true;
@@ -206,7 +247,7 @@ namespace Game.Scripts.LiveObjects
                         break;
 
                     case ZoneType.Action:
-                        ChangeBinding();
+                       ChangeBinding();
                         if (_actionPerformed == false)
                         {
                             _inZone = true;
@@ -237,6 +278,7 @@ namespace Game.Scripts.LiveObjects
 
         private void ChangeBinding() 
         {
+            if(!controller)
             _input.asset.FindAction("Interact").ApplyBindingOverride($"<Keyboard>/{_zoneKeyInput.ToString().ToLower()}");
         }
 
